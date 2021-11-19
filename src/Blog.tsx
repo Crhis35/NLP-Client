@@ -72,7 +72,7 @@ const Blog = () => {
                   });
                   setText(data.data.summary);
                 } catch (error) {
-                  console.log(error);
+                  console.error(error);
                   toast({
                     position: "bottom",
                     title: "Error",
