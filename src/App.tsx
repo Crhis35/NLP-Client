@@ -1,5 +1,5 @@
-import { ChakraProvider } from "@chakra-ui/react";
-import Blog from "./Blog";
+import { ChakraProvider } from '@chakra-ui/react';
+import Blog from './Blog';
 
 const App = () => {
   return (

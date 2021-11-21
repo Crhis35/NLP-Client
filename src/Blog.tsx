@@ -10,29 +10,43 @@ import {
   FormControl,
   FormHelperText,
   Button,
+  Stack,
   useToast,
-} from "@chakra-ui/react";
-import { ArrowForwardIcon } from "@chakra-ui/icons";
-import { useState } from "react";
-import { ErrorMessage, Field, Form, Formik } from "formik";
-import * as Yup from "yup";
-import axios from "axios";
+  StatGroup,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+  Tag,
+} from '@chakra-ui/react';
+import { ArrowForwardIcon } from '@chakra-ui/icons';
+import { useState } from 'react';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import * as Yup from 'yup';
+import axios from 'axios';
+
+const wordCount = (str: string): number => {
+  if (str.length === 0) return 0;
+  return str.split(' ').length;
+};
 
 const Blog = () => {
-  const [text, setText] = useState("");
+  const [text, setText] = useState('');
+  const [fullText, setFullText] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
   return (
-    <Container maxW={"7xl"} p="12">
-      <Heading as="h1" fontSize={["2xl", "3xl"]}>
-        Text Sumarize
+    <Container maxW={'7xl'} p="12">
+      <Heading as="h1" fontSize={['2xl', '3xl']}>
+        Text Summarize
       </Heading>
-      <Box zIndex="1" width="100%" position="absolute" height="100%">
+      <Box zIndex="-1" width="100%" position="absolute" height="100%">
         <Box
           bgGradient={useColorModeValue(
-            "radial(orange.600 1px, transparent 1px)",
-            "radial(orange.300 1px, transparent 1px)"
+            'radial(orange.600 1px, transparent 1px)',
+            'radial(orange.300 1px, transparent 1px)'
           )}
           backgroundSize="20px 20px"
           opacity="0.4"
@@ -40,9 +54,9 @@ const Blog = () => {
         />
       </Box>
       <Box
-        marginTop={{ base: "1", sm: "5" }}
+        marginTop={{ base: '1', sm: '5' }}
         display="flex"
-        flexDirection={{ base: "column", sm: "row" }}
+        flexDirection={{ base: 'column', sm: 'row' }}
         justifyContent="space-between"
       >
         <Box
@@ -53,40 +67,41 @@ const Blog = () => {
           alignItems="center"
         >
           <Box
-            width={{ base: "100%", sm: "85%" }}
+            width={{ base: '100%', sm: '85%' }}
             zIndex="2"
-            marginLeft={{ base: "0", sm: "5%" }}
+            marginLeft={{ base: '0', sm: '5%' }}
             marginTop="5%"
           >
             <Formik
               onSubmit={async (values) => {
                 try {
                   setLoading(true);
-                  const { data } = await axios.post("/api", values);
+                  const { data } = await axios.post('/api', values);
                   toast({
-                    position: "bottom",
-                    title: "Success",
-                    description: "Your post has been summarize",
-                    status: "success",
+                    position: 'bottom',
+                    title: 'Success',
+                    description: 'Your post has been summarize',
+                    status: 'success',
                     isClosable: true,
                   });
                   setText(data.data.summary);
+                  setFullText(data.data.fullText);
                 } catch (error) {
                   console.error(error);
                   toast({
-                    position: "bottom",
-                    title: "Error",
-                    description: "Something went wrong",
-                    status: "error",
+                    position: 'bottom',
+                    title: 'Error',
+                    description: 'Something went wrong',
+                    status: 'error',
                     isClosable: true,
                   });
                 } finally {
                   setLoading(false);
                 }
               }}
-              initialValues={{ text: "" }}
+              initialValues={{ text: '' }}
               validationSchema={Yup.object().shape({
-                text: Yup.string().required("Text required"),
+                text: Yup.string().required('Text required').min(100),
               })}
             >
               {(formik) => (
@@ -99,6 +114,9 @@ const Blog = () => {
                       size="lg"
                       placeholder="Here is a sample placeholder"
                     />
+                    <Tag mt={4} colorScheme="cyan">
+                      {wordCount(formik.values.text)} Words
+                    </Tag>
                     <ErrorMessage name="text">
                       {(msg) => (
                         <FormHelperText color="red">{msg}</FormHelperText>
@@ -125,21 +143,42 @@ const Blog = () => {
           flex="1"
           flexDirection="column"
           justifyContent="center"
-          marginTop={{ base: "3", sm: "0" }}
+          marginTop={{ base: '3', sm: '0' }}
         >
           <Heading marginTop="1">
-            <Link textDecoration="none" _hover={{ textDecoration: "none" }}>
+            <Link textDecoration="none" _hover={{ textDecoration: 'none' }}>
               Summary
             </Link>
           </Heading>
-          <Text
-            as="p"
-            marginTop="2"
-            color={useColorModeValue("gray.700", "gray.200")}
-            fontSize="lg"
+          <Stack
+            bg={useColorModeValue('gray.50', 'gray.800')}
+            py={16}
+            px={8}
+            spacing={{ base: 8, md: 10 }}
+            align={'center'}
+            direction={'column'}
           >
-            {text}
-          </Text>
+            <Text
+              fontSize={{ base: 'xl', md: '2xl' }}
+              textAlign={'center'}
+              maxW={'3xl'}
+            >
+              {text}
+            </Text>
+            {text && (
+              <StatGroup>
+                <Stat>
+                  <StatLabel>Reduced to</StatLabel>
+                  <StatNumber>{wordCount(text)} Words</StatNumber>
+                  <StatHelpText>
+                    <StatArrow type="increase" />
+                    {((wordCount(text) / wordCount(fullText)) * 100).toFixed(2)}
+                    %
+                  </StatHelpText>
+                </Stat>
+              </StatGroup>
+            )}
+          </Stack>
         </Box>
       </Box>
     </Container>
