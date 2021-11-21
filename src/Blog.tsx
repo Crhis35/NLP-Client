@@ -19,6 +19,7 @@ import {
   StatHelpText,
   StatArrow,
   Tag,
+  Skeleton,
 } from '@chakra-ui/react';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
@@ -36,7 +37,7 @@ const Blog = () => {
   const [fullText, setFullText] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useToast();
-
+  const color = useColorModeValue('gray.50', 'gray.800');
   return (
     <Container maxW={'7xl'} p="12">
       <Heading as="h1" fontSize={['2xl', '3xl']}>
@@ -56,7 +57,7 @@ const Blog = () => {
       <Box
         marginTop={{ base: '1', sm: '5' }}
         display="flex"
-        flexDirection={{ base: 'column', sm: 'row' }}
+        flexDirection={{ base: 'column' }}
         justifyContent="space-between"
       >
         <Box
@@ -101,7 +102,9 @@ const Blog = () => {
               }}
               initialValues={{ text: '' }}
               validationSchema={Yup.object().shape({
-                text: Yup.string().required('Text required').min(100),
+                text: Yup.string()
+                  .required('Text is required')
+                  .min(100, 'Your text must be at least 100 characters'),
               })}
             >
               {(formik) => (
@@ -112,7 +115,7 @@ const Blog = () => {
                       name="text"
                       as={Textarea}
                       size="lg"
-                      placeholder="Here is a sample placeholder"
+                      placeholder="Write your text here..."
                     />
                     <Tag mt={4} colorScheme="cyan">
                       {wordCount(formik.values.text)} Words
@@ -150,35 +153,48 @@ const Blog = () => {
               Summary
             </Link>
           </Heading>
-          <Stack
-            bg={useColorModeValue('gray.50', 'gray.800')}
-            py={16}
-            px={8}
-            spacing={{ base: 8, md: 10 }}
-            align={'center'}
-            direction={'column'}
-          >
-            <Text
-              fontSize={{ base: 'xl', md: '2xl' }}
-              textAlign={'center'}
-              maxW={'3xl'}
+          {loading ? (
+            <Stack>
+              <Skeleton height="20px" />
+              <Skeleton height="20px" />
+              <Skeleton height="20px" />
+              <Skeleton height="20px" />
+              <Skeleton height="20px" />
+              <Skeleton height="20px" />
+            </Stack>
+          ) : (
+            <Stack
+              bg={color}
+              py={16}
+              px={8}
+              spacing={{ base: 8, md: 10 }}
+              align={'center'}
+              direction={'column'}
             >
-              {text}
-            </Text>
-            {text && (
-              <StatGroup>
-                <Stat>
-                  <StatLabel>Reduced to</StatLabel>
-                  <StatNumber>{wordCount(text)} Words</StatNumber>
-                  <StatHelpText>
-                    <StatArrow type="increase" />
-                    {((wordCount(text) / wordCount(fullText)) * 100).toFixed(2)}
-                    %
-                  </StatHelpText>
-                </Stat>
-              </StatGroup>
-            )}
-          </Stack>
+              {text && (
+                <StatGroup>
+                  <Stat>
+                    <StatLabel>Reduced to</StatLabel>
+                    <StatNumber>{wordCount(text)} Words</StatNumber>
+                    <StatHelpText>
+                      <StatArrow type="increase" />
+                      {((wordCount(text) / wordCount(fullText)) * 100).toFixed(
+                        2
+                      )}
+                      %
+                    </StatHelpText>
+                  </Stat>
+                </StatGroup>
+              )}
+              <Text
+                fontSize={{ base: 'xl', md: '2xl' }}
+                textAlign={'center'}
+                maxW={'3xl'}
+              >
+                {text}
+              </Text>
+            </Stack>
+          )}
         </Box>
       </Box>
     </Container>
