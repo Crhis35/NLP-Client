@@ -21,10 +21,13 @@ import {
   Tag,
   Skeleton,
 } from '@chakra-ui/react';
+
 import { ArrowForwardIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
+
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
+
 import axios from 'axios';
 
 const wordCount = (str: string): number => {
@@ -36,10 +39,12 @@ const Blog = () => {
   const [text, setText] = useState('');
   const [fullText, setFullText] = useState('');
   const [loading, setLoading] = useState(false);
+
   const toast = useToast();
   const color = useColorModeValue('gray.50', 'gray.800');
+
   return (
-    <Container maxW={'7xl'} p="12">
+    <Container maxW={'full'} p="12">
       <Heading as="h1" fontSize={['2xl', '3xl']}>
         Text Summarize
       </Heading>
@@ -178,9 +183,10 @@ const Blog = () => {
                     <StatNumber>{wordCount(text)} Words</StatNumber>
                     <StatHelpText>
                       <StatArrow type="increase" />
-                      {((wordCount(text) / wordCount(fullText)) * 100).toFixed(
-                        2
-                      )}
+                      {(
+                        100 -
+                        (wordCount(text) / wordCount(fullText)) * 100
+                      ).toFixed(2)}
                       %
                     </StatHelpText>
                   </Stat>
